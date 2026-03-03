@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cliente Calculadora Web</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <header>
+        <h1>Cliente calculadora web</h1>
+        <button id="btn-historial">Historial</button>
+    </header>
+
+    <div id="overlay"></div>
+
+    <aside id="sidebar">
+        <ul id="lista-historial"></ul>
+        <button id="btn-vaciar-historial">Eliminar historial</button>
+    </aside>
+
+    <main>
+        <div class="fila-superior">
+            <input type="text" class="input-numero" placeholder="0">
+            <select id="operador">
+                <option value="+">+</option>
+                <option value="-">-</option>
+                <option value="*">×</option>
+                <option value="/">÷</option>
+            </select>
+            <input type="text" class="input-numero" placeholder="0">
+            <button id="btn-igual">=</button>
+            <input type="text" readonly placeholder="Resultado">
+        </div>
+
+        <div id="mensaje-error">Solo se pueden ingresar números</div>
+    </main>
+
+    <script src="app.js"></script>
+</body>
+</html>
