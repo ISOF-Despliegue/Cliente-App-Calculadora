@@ -33,8 +33,43 @@
             <input type="text" readonly placeholder="Resultado">
         </div>
 
-        <div id="mensaje-error">Solo se pueden ingresar números</div>
+            <div id="mensaje-error">Solo se pueden ingresar números</div>
     </main>
+
+    <!-- Modal para editar registros -->
+    <div id="modal-editar" class="modal" style="display: none;">
+        <div class="modal-contenido">
+            <span class="cerrar-modal">&times;</span>
+            <h2>Editar Registro</h2>
+            <div class="form-editar">
+                <div>
+                    <label>Valor A:</label>
+                    <input type="number" id="edit-a" placeholder="0">
+                </div>
+                <div>
+                    <label>Operación:</label>
+                    <select id="edit-operacion">
+                        <option value="sumar">+</option>
+                        <option value="restar">-</option>
+                        <option value="multiplicar">×</option>
+                        <option value="dividir">÷</option>
+                    </select>
+                </div>
+                <div>
+                    <label>Valor B:</label>
+                    <input type="number" id="edit-b" placeholder="0">
+                </div>
+                <div>
+                    <label>Resultado:</label>
+                    <input type="number" id="edit-resultado" placeholder="0">
+                </div>
+                <div class="botones-modal">
+                    <button id="btn-guardar-put">Guardar (PUT)</button>
+                    <button id="btn-guardar-patch">Actualizar Parcial (PATCH)</button>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <script src="app.js"></script>
 </body>

@@ -1,5 +1,5 @@
 // URL base de tu API
-const API_URL = 'http://localhost:3000/calculadora';
+const API_URL = 'http://localhost:8082/calculadora';
 
 /* =========================================
    Lógica de Interfaz (Menú y validaciones)
@@ -56,6 +56,13 @@ const mapaSimbolosUI = {
     'dividir': '÷'
 };
 
+// Variables para el modal de edición
+const modal = document.getElementById('modal-editar');
+const cerrarModal = document.querySelector('.cerrar-modal');
+const btnGuardarPut = document.getElementById('btn-guardar-put');
+const btnGuardarPatch = document.getElementById('btn-guardar-patch');
+let idRegistroActual = null;
+
 // Función para dibujar un registro en el HTML
 function renderizarElemento(registro) {
     const li = document.createElement('li');
@@ -66,7 +73,10 @@ function renderizarElemento(registro) {
     
     li.innerHTML = `
         <span>${registro.a} ${simbolo} ${registro.b} = ${registro.resultado}</span>
-        <button class="btn-eliminar">Eliminar</button>
+        <div class="botones-registro">
+            <button class="btn-editar">Editar</button>
+            <button class="btn-eliminar">Eliminar</button>
+        </div>
     `;
     listaHistorial.appendChild(li);
 }
@@ -136,6 +146,110 @@ listaHistorial.addEventListener('click', async (e) => {
         } catch (error) {
             console.error('Error al eliminar el registro:', error);
         }
+    }
+});
+
+// PUT/PATCH: Abrir modal para editar un registro
+listaHistorial.addEventListener('click', async (e) => {
+    if (e.target.classList.contains('btn-editar')) {
+        const elementoLi = e.target.closest('li');
+        idRegistroActual = elementoLi.dataset.id;
+
+        try {
+            const respuesta = await fetch(`${API_URL}/historial/${idRegistroActual}`);
+            if (respuesta.ok) {
+                const registro = await respuesta.json();
+                document.getElementById('edit-a').value = registro.a;
+                document.getElementById('edit-b').value = registro.b;
+                document.getElementById('edit-operacion').value = registro.operacion;
+                document.getElementById('edit-resultado').value = registro.resultado;
+                modal.style.display = 'block';
+            }
+        } catch (error) {
+            console.error('Error al cargar el registro:', error);
+        }
+    }
+});
+
+// Cerrar modal
+cerrarModal.addEventListener('click', () => {
+    modal.style.display = 'none';
+});
+
+window.addEventListener('click', (e) => {
+    if (e.target === modal) {
+        modal.style.display = 'none';
+    }
+});
+
+// PUT: Actualizar completamente un registro
+btnGuardarPut.addEventListener('click', async () => {
+    const a = Number(document.getElementById('edit-a').value);
+    const b = Number(document.getElementById('edit-b').value);
+    const operacion = document.getElementById('edit-operacion').value;
+    const resultado = Number(document.getElementById('edit-resultado').value);
+
+    if (isNaN(a) || isNaN(b) || isNaN(resultado)) {
+        alert('Por favor completa todos los campos');
+        return;
+    }
+
+    try {
+        const respuesta = await fetch(`${API_URL}/historial/${idRegistroActual}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ a, b, operacion, resultado })
+        });
+
+        if (respuesta.ok) {
+            const data = await respuesta.json();
+            // Actualizar el elemento en el DOM
+            const elementoLi = document.querySelector(`li[data-id="${idRegistroActual}"]`);
+            const simbolo = mapaSimbolosUI[data.registro.operacion];
+            elementoLi.querySelector('span').textContent = `${data.registro.a} ${simbolo} ${data.registro.b} = ${data.registro.resultado}`;
+            modal.style.display = 'none';
+        }
+    } catch (error) {
+        console.error('Error al actualizar el registro:', error);
+    }
+});
+
+// PATCH: Actualizar parcialmente un registro
+btnGuardarPatch.addEventListener('click', async () => {
+    const datosActualizar = {};
+
+    const a = document.getElementById('edit-a').value;
+    const b = document.getElementById('edit-b').value;
+    const operacion = document.getElementById('edit-operacion').value;
+    const resultado = document.getElementById('edit-resultado').value;
+
+    if (a !== '') datosActualizar.a = Number(a);
+    if (b !== '') datosActualizar.b = Number(b);
+    if (operacion !== '') datosActualizar.operacion = operacion;
+    if (resultado !== '') datosActualizar.resultado = Number(resultado);
+
+    if (Object.keys(datosActualizar).length === 0) {
+        alert('Debes cambiar al menos un campo');
+        return;
+    }
+
+    try {
+        const respuesta = await fetch(`${API_URL}/historial/${idRegistroActual}`, {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(datosActualizar)
+        });
+
+        if (respuesta.ok) {
+            const data = await respuesta.json();
+            // Actualizar el elemento en el DOM
+            const elementoLi = document.querySelector(`li[data-id="${idRegistroActual}"]`);
+            const simbolo = mapaSimbolosUI[data.registro.operacion];
+            elementoLi.querySelector('span').textContent = `${data.registro.a} ${simbolo} ${data.registro.b} = ${data.registro.resultado}`;
+            modal.style.display = 'none';
+        }
+    } catch (error) {
+        console.error('Error al actualizar parcialmente el registro:', error);
     }
 });
 
